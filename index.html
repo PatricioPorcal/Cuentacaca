@@ -1,104 +1,70 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contadores</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .divider {
-            width: 2px;
-            height: 50%;
-            background-color: orange;
-        }
-
-        .section {
-            width: 40%;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-        }
-
-        .counter {
-            font-size: 2rem;
-            margin: 20px 0;
-        }
-
-        button {
-            font-size: 1rem;
-            padding: 10px 20px;
-            margin-top: 20px;
-            cursor: pointer;
-            border: none;
-            background-color: orange;
-            color: white;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background-color: darkorange;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contadores en Línea</title>
+  <style>
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+    .container { display: flex; justify-content: space-between; width: 60%; text-align: center; }
+    .divider { border-left: 3px solid orange; height: 150px; margin: 0 20px; }
+    .counter { margin: 10px; }
+    button { margin-top: 10px; padding: 5px 10px; font-size: 16px; }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Sección de Cucurucho -->
-        <div class="section">
-            <h2>Cucurucho</h2>
-            <div class="counter" id="counterCucurucho">0</div>
-            <button onclick="incrementCounter('counterCucurucho')">Sumar 1</button>
-        </div>
-
-        <!-- Línea divisora -->
-        <div class="divider"></div>
-
-        <!-- Sección de Abuelito -->
-        <div class="section">
-            <h2>Abuelito</h2>
-            <div class="counter" id="counterAbuelito">0</div>
-            <button onclick="incrementCounter('counterAbuelito')">Sumar 1</button>
-        </div>
+  <div class="container">
+    <div class="counter" id="cucurucho">
+      <h2>Cucurucho</h2>
+      <p id="countCucurucho">0</p>
+      <button onclick="increment('cucurucho')">Sumar 1</button>
     </div>
+    <div class="divider"></div>
+    <div class="counter" id="abuelito">
+      <h2>Abuelito</h2>
+      <p id="countAbuelito">0</p>
+      <button onclick="increment('abuelito')">Sumar 1</button>
+    </div>
+  </div>
 
-    <script>
-        // Inicializa los contadores con los valores almacenados, o 0 si no hay valores guardados
-        document.addEventListener("DOMContentLoaded", function() {
-            const cucuruchoCount = localStorage.getItem('cucurucho') || 0;
-            const abuelitoCount = localStorage.getItem('abuelito') || 0;
+  <script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_AUTH_DOMAIN",
+      databaseURL: "TU_DATABASE_URL",
+      projectId: "TU_PROJECT_ID",
+      storageBucket: "TU_STORAGE_BUCKET",
+      messagingSenderId: "TU_MESSAGING_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
 
-            document.getElementById('counterCucurucho').textContent = cucuruchoCount;
-            document.getElementById('counterAbuelito').textContent = abuelitoCount;
-        });
+    // Inicializar Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-        // Función para incrementar los contadores y guardarlos en localStorage
-        function incrementCounter(counterId) {
-            const counterElement = document.getElementById(counterId);
-            let currentCount = parseInt(counterElement.textContent);
-            currentCount += 1;
-            counterElement.textContent = currentCount;
+    // Referencias a los contadores
+    const countersRef = {
+      cucurucho: db.ref('counters/cucurucho'),
+      abuelito: db.ref('counters/abuelito'),
+    };
 
-            // Guarda el valor actualizado en localStorage
-            if (counterId === 'counterCucurucho') {
-                localStorage.setItem('cucurucho', currentCount);
-            } else if (counterId === 'counterAbuelito') {
-                localStorage.setItem('abuelito', currentCount);
-            }
-        }
-    </script>
+    // Actualizar contadores en tiempo real
+    countersRef.cucurucho.on('value', (snapshot) => {
+      document.getElementById('countCucurucho').innerText = snapshot.val() || 0;
+    });
+
+    countersRef.abuelito.on('value', (snapshot) => {
+      document.getElementById('countAbuelito').innerText = snapshot.val() || 0;
+    });
+
+    // Función para incrementar el contador
+    function increment(name) {
+      const ref = countersRef[name];
+      ref.transaction((currentValue) => (currentValue || 0) + 1);
+    }
+  </script>
 </body>
 </html>

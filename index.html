@@ -76,7 +76,7 @@
       const countRef = database.ref(`counters/${counter}`);
       countRef.on('value', (snapshot) => {
         const value = snapshot.val();
-        document.getElementById(`${counter}-count`).innerText = value;
+        document.getElementById(`${counter}-count`).innerText = value || 0;  // Mostrar 0 si el valor es null
       });
     });
 
@@ -84,7 +84,7 @@
     function increment(counter) {
       const countRef = database.ref(`counters/${counter}`);
       countRef.transaction((currentValue) => {
-        return (currentValue || 0) + 1;
+        return (currentValue || 0) + 1;  // Si el valor es null, lo inicializa como 0
       });
     }
   </script>

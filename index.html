@@ -56,15 +56,15 @@
   <script>
     // Firebase configuration (Reemplaza estos valores con los de tu proyecto)
     const firebaseConfig = {
-    apiKey: "AIzaSyB32BAfNYyOrkSpeLg0C6xJcgMAIO20pvE",
-    authDomain: "cuentacaca-f53ed.firebaseapp.com",
-    databaseURL: "https://cuentacaca-f53ed-default-rtdb.firebaseio.com",
-    projectId: "cuentacaca-f53ed",
-    storageBucket: "cuentacaca-f53ed.firebasestorage.app",
-    messagingSenderId: "607998780635",
-    appId: "1:607998780635:web:81370cd7908851d2c518fe",
-    measurementId: "G-F353L4RJ1F"
-  };
+      apiKey: "AIzaSyB32BAfNYyOrkSpeLg0C6xJcgMAIO20pvE",
+      authDomain: "cuentacaca-f53ed.firebaseapp.com",
+      databaseURL: "https://cuentacaca-f53ed-default-rtdb.firebaseio.com",
+      projectId: "cuentacaca-f53ed",
+      storageBucket: "cuentacaca-f53ed.firebasestorage.app",
+      messagingSenderId: "607998780635",
+      appId: "1:607998780635:web:81370cd7908851d2c518fe",
+      measurementId: "G-F353L4RJ1F"
+    };
 
     // Inicializa Firebase
     const app = firebase.initializeApp(firebaseConfig);
@@ -73,7 +73,7 @@
     // Escucha los cambios en los contadores
     const counters = ['cucurucho', 'abuelito'];
     counters.forEach(counter => {
-      const countRef = firebase.database().ref(`counters/${counter}`);
+      const countRef = database.ref(`counters/${counter}`);
       countRef.on('value', (snapshot) => {
         const value = snapshot.val();
         document.getElementById(`${counter}-count`).innerText = value;
@@ -82,5 +82,11 @@
 
     // Incrementa un contador
     function increment(counter) {
-      const countRef = firebase.database().ref(`counters/${counter}`);
-      countRef.transac
+      const countRef = database.ref(`counters/${counter}`);
+      countRef.transaction((currentValue) => {
+        return (currentValue || 0) + 1;
+      });
+    }
+  </script>
+</body>
+</html>

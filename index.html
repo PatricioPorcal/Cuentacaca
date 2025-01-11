@@ -3,34 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contadores en Línea</title>
+  <title>Contadores</title>
   <style>
-    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-    .container { display: flex; justify-content: space-between; width: 60%; text-align: center; }
-    .divider { border-left: 3px solid orange; height: 150px; margin: 0 20px; }
-    .counter { margin: 10px; }
-    button { margin-top: 10px; padding: 5px 10px; font-size: 16px; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 50px;
+    }
+    .divider {
+      height: 200px;
+      width: 3px;
+      background-color: orange;
+    }
+    .counter {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
   </style>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database.js"></script>
 </head>
 <body>
   <div class="container">
-    <div class="counter" id="cucurucho">
+    <div class="counter">
       <h2>Cucurucho</h2>
-      <p id="countCucurucho">0</p>
+      <p id="cucurucho-count">0</p>
       <button onclick="increment('cucurucho')">Sumar 1</button>
     </div>
     <div class="divider"></div>
-    <div class="counter" id="abuelito">
+    <div class="counter">
       <h2>Abuelito</h2>
-      <p id="countAbuelito">0</p>
+      <p id="abuelito-count">0</p>
       <button onclick="increment('abuelito')">Sumar 1</button>
     </div>
   </div>
 
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js"></script>
+
   <script>
-    // Configuración de Firebase
+    // Firebase configuration (Reemplaza estos valores con los de tu proyecto)
     const firebaseConfig = {
       apiKey: "TU_API_KEY",
       authDomain: "TU_AUTH_DOMAIN",
@@ -41,30 +65,21 @@
       appId: "TU_APP_ID"
     };
 
-    // Inicializar Firebase
+    // Inicializa Firebase
     const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const database = firebase.database(app);
 
-    // Referencias a los contadores
-    const countersRef = {
-      cucurucho: db.ref('counters/cucurucho'),
-      abuelito: db.ref('counters/abuelito'),
-    };
-
-    // Actualizar contadores en tiempo real
-    countersRef.cucurucho.on('value', (snapshot) => {
-      document.getElementById('countCucurucho').innerText = snapshot.val() || 0;
+    // Escucha los cambios en los contadores
+    const counters = ['cucurucho', 'abuelito'];
+    counters.forEach(counter => {
+      const countRef = firebase.database().ref(`counters/${counter}`);
+      countRef.on('value', (snapshot) => {
+        const value = snapshot.val();
+        document.getElementById(`${counter}-count`).innerText = value;
+      });
     });
 
-    countersRef.abuelito.on('value', (snapshot) => {
-      document.getElementById('countAbuelito').innerText = snapshot.val() || 0;
-    });
-
-    // Función para incrementar el contador
-    function increment(name) {
-      const ref = countersRef[name];
-      ref.transaction((currentValue) => (currentValue || 0) + 1);
-    }
-  </script>
-</body>
-</html>
+    // Incrementa un contador
+    function increment(counter) {
+      const countRef = firebase.database().ref(`counters/${counter}`);
+      countRef.transac
